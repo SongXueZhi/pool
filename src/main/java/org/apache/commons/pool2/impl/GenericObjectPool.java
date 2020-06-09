@@ -458,7 +458,7 @@ public class GenericObjectPool<T> extends BaseGenericObjectPool<T>
                         throw nsee;
                     }
                 }
-                if (p != null && (getTestOnBorrow() || create && getTestOnCreate())) {
+                if (p != null && (getTestOnBorrow())) {
                     boolean validate = false;
                     Throwable validationThrowable = null;
                     try {
@@ -872,6 +872,10 @@ public class GenericObjectPool<T> extends BaseGenericObjectPool<T>
         final PooledObject<T> p;
         try {
             p = factory.makeObject();
+                if (getTestOnCreate() && !factory.validateObject(p)) {
+                createCount.decrementAndGet();
+                return null;
+            }
         } catch (final Throwable e) {
             createCount.decrementAndGet();
             throw e;
